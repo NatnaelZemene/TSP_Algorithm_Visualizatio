@@ -1,5 +1,16 @@
 # TSP.SIM — Traveling Salesman Problem Visualizer
 
+## Group Members — Group 4, Section 2
+
+| # | Name | Student ID |
+|---|------|------------|
+| 1 | **Natnael Zemene** | GUR/02204/16 |
+| 2 | Meron Kifle | GUR/01196/16 |
+| 3 | Hilina Shambel | GUR/01604/16 |
+| 4 | Lidiya Assefa | GUR/02780/16 |
+| 5 | Eden Shewaye | GUR/01134/16 |
+| 6 | Mulugeta Fissiha | GUR/01919/16 |
+
 **Group project — Algorithms course**
 
 An interactive, browser-based tool our team built to **solve and visualize** the classic **Traveling Salesman Problem (TSP)** on a small map of five U.S. cities. Switch between four fundamental algorithm families, watch tours build in real time, and compare **optimality**, **speed**, and **search behavior** side by side.
@@ -12,6 +23,7 @@ The app is **fully responsive** — it works on desktop, tablet, and mobile brow
 
 ## Table of Contents
 
+- [Group Members — Group 4, Section 2](#group-members--group-4-section-2)
 - [Live Demo](#live-demo)
 - [Responsive Design](#responsive-design)
 - [Features](#features)
