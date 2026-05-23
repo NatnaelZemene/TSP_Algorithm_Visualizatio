@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSP Algorithm Visualizer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/TSP.css">
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="3" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="2" cy="3" r="1.5" fill="#00d4ff"/>
+        <circle cx="14" cy="3" r="1.5" fill="#00ff88"/>
+        <circle cx="14" cy="13" r="1.5" fill="#ffaa00"/>
+        <circle cx="2" cy="13" r="1.5" fill="#ff3355"/>
+        <line x1="2" y1="3" x2="14" y2="3" stroke="#00d4ff" stroke-width="0.5" opacity="0.4"/>
+        <line x1="14" y1="3" x2="14" y2="13" stroke="#00d4ff" stroke-width="0.5" opacity="0.4"/>
+        <line x1="14" y1="13" x2="2" y2="13" stroke="#00d4ff" stroke-width="0.5" opacity="0.4"/>
+        <line x1="2" y1="13" x2="2" y2="3" stroke="#00d4ff" stroke-width="0.5" opacity="0.4"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">TSP.SIM</div>
+      <div class="logo-sub">TRAVELING SALESMAN PROBLEM</div>
+    </div>
+  </div>
+
+  <button class="nav-menu-btn" id="nav-menu-btn" type="button" aria-label="Toggle algorithm menu" aria-expanded="false" aria-controls="nav-tabs">☰</button>
+
+  <div class="nav-tabs" id="nav-tabs">
+    <button class="tab active" data-algo="brute">⬡ Brute Force</button>
+    <button class="tab" data-algo="backtrack">⟲ Backtracking</button>
+    <button class="tab" data-algo="dp">◈ Dynamic Prog.</button>
+    <button class="tab" data-algo="greedy">⚡ Greedy / NN</button>
+  </div>
+
+  <div class="nav-right">
+    <div class="nav-badge" id="nav-badge">● READY</div>
+    <button class="nav-icon-btn" id="fullscreen-btn" title="Fullscreen">⛶</button>
+  </div>
+</nav>
+
+<div class="left-panel">
+  <div class="section-title">Controls</div>
+
+  <div class="ctrl-block">
+    <div class="btn-grid">
+      <button class="btn run"    id="btn-run">▶ Run</button>
+      <button class="btn pause"  id="btn-pause"  disabled>⏸ Pause</button>
+      <button class="btn resume" id="btn-resume" disabled>▷ Resume</button>
+      <button class="btn stop"   id="btn-stop"   disabled>■ Stop</button>
+    </div>
+    <button class="btn reset" id="btn-reset">↺ Reset</button>
+
+    <div class="speed-wrap">
+      <div class="slider-meta">Animation Speed <span id="speed-lbl">×1</span></div>
+      <input type="range" id="speed-slider" min="0" max="100" value="50">
+    </div>
+
+    <div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar"></div></div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-auto">Auto</button>
+      <button class="mode-btn" id="mode-step">Step</button>
+    </div>
+    <button class="btn step-btn" id="btn-next" disabled>→ Next Step</button>
+  </div>
+
+  <div class="section-title">Algorithm Info</div>
+  <div class="info-block" id="algo-info">
+    <strong>BRUTE FORCE</strong>
+    Tries every possible permutation. Guaranteed optimal. Explodes at n&gt;10.
+    <br><span class="tag">O((n-1)!)</span><span class="tag" style="margin-left:4px;background:rgba(0,212,255,0.08);color:var(--neon-b);border-color:rgba(0,212,255,0.2)">Space: O(n)</span>
+  </div>
+
+  <div class="section-title">Pseudocode</div>
+  <div class="pseudo-wrap" id="pseudo-wrap"></div>
+
+  <div class="section-title">Recursion Stack</div>
+  <div class="stack-wrap" id="stack-wrap"></div>
+
+  <div class="section-title">Cities</div>
+  <div class="city-legend" id="city-legend"></div>
+</div>
+
+<div class="center-panel" id="center-panel">
+  <canvas id="main-canvas"></canvas>
+
+  <div class="canvas-overlay-tl">
+    <button class="canvas-badge" id="zoom-in">＋ Zoom</button>
+    <button class="canvas-badge" id="zoom-out">－ Zoom</button>
+    <button class="canvas-badge" id="zoom-reset">⊙ Reset</button>
+  </div>
+
+  <div class="canvas-overlay-tr">
+    <div class="algo-name" id="algo-name">BRUTE FORCE</div>
+    <div class="algo-status" id="algo-status">READY — CLICK RUN</div>
+  </div>
+
+  <div class="backtrack-flash" id="bt-flash">⟲ BACKTRACKING</div>
+  <div class="cache-flash"     id="cache-flash">⚡ CACHED RESULT</div>
+
+  <div class="legend-bar">
+    <div class="legend-item"><div class="legend-dot-sm" style="background:#ffe600;box-shadow:0 0 6px #ffe600"></div>Current</div>
+    <div class="legend-item"><div class="legend-dot-sm" style="background:#00ff88;box-shadow:0 0 6px #00ff88"></div>Visited</div>
+    <div class="legend-item"><div class="legend-line" style="background:#00d4ff;box-shadow:0 0 4px #00d4ff"></div>Current Path</div>
+    <div class="legend-item"><div class="legend-line" style="background:#ff3355;opacity:0.6;border-top:1px dashed #ff3355"></div>Rejected</div>
+    <div class="legend-item"><div class="legend-line" style="background:#ffaa00;box-shadow:0 0 6px #ffaa00"></div>Optimal</div>
+  </div>
+
+  <div class="zoom-bar">
+    <button class="zb" id="zb-in">+</button>
+    <button class="zb" id="zb-out">−</button>
+    <button class="zb" id="zb-rst">⊙</button>
+    <button class="zb" id="zb-fs">⛶</button>
+  </div>
+
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<div class="right-panel">
+  <div class="section-title">Algorithm Process</div>
+
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--muted)" id="tree-label">Brute Force Exploration Tree</div>
+      <div style="font-family:var(--mono);font-size:8px;color:rgba(0,180,255,0.5)" id="tree-node-count">0 nodes</div>
+    </div>
+    <div class="tree-canvas-wrap" id="tree-canvas-wrap">
+      <canvas id="tree-canvas"></canvas>
+      <canvas class="tree-minimap" id="tree-minimap" width="70" height="50"></canvas>
+    </div>
+    <div class="tree-stats-bar">
+      <div class="tree-stat-item"><div class="tree-stat-dot" style="background:#00d4ff;box-shadow:0 0 4px #00d4ff"></div><span style="color:#00d4ff">Active</span></div>
+      <div class="tree-stat-item"><div class="tree-stat-dot" style="background:#ff3355;box-shadow:0 0 4px #ff3355"></div><span style="color:#ff3355">Pruned</span></div>
+      <div class="tree-stat-item"><div class="tree-stat-dot" style="background:#ffaa00;box-shadow:0 0 4px #ffaa00"></div><span style="color:#ffaa00">Optimal</span></div>
+      <span style="margin-left:auto;color:var(--neon-b)" id="tree-depth-info">Depth: 0</span>
+    </div>
+    <div class="tree-zoom-btns">
+      <button class="tzb" id="tzb-in">+ Zoom</button>
+      <button class="tzb" id="tzb-out">− Zoom</button>
+      <button class="tzb" id="tzb-fit">⊙ Fit</button>
+    </div>
+  </div>
+
+  <div class="section-title">Current Path</div>
+  <div class="path-row" id="path-row">
+    <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">—</span>
+  </div>
+  <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:3px" id="path-return-lbl"></div>
+
+  <div class="section-title">Live Stats</div>
+  <div class="stats-grid-r">
+    <div class="stat-mini gold"><div class="lbl">Best Cost</div><div class="val" id="r-best">∞</div></div>
+    <div class="stat-mini"><div class="lbl">Current Cost</div><div class="val" id="r-cur">0</div></div>
+    <div class="stat-mini"><div class="lbl">Nodes Explored</div><div class="val" id="r-nodes">0</div></div>
+    <div class="stat-mini grn"><div class="lbl">Total Tours</div><div class="val" id="r-tours">0</div></div>
+    <div class="stat-mini red"><div class="lbl">Recursive Calls</div><div class="val" id="r-calls">0</div></div>
+    <div class="stat-mini"><div class="lbl">Current Depth</div><div class="val" id="r-depth">0</div></div>
+  </div>
+
+  <div class="section-title">Time Complexity</div>
+  <div class="comp-chart-wrap">
+    <canvas id="comp-canvas"></canvas>
+    <div class="comp-label" id="comp-label">O((n-1)!)</div>
+  </div>
+
+  <div class="section-title" id="dp-section-title" style="display:none">DP Memo Table</div>
+  <div class="dp-list" id="dp-list" style="display:none"></div>
+
+  <div class="section-title">Result</div>
+  <div class="result-card" id="result-card">
+    <div class="result-card-title">◈ OPTIMAL SOLUTION</div>
+    <div class="result-path-disp" id="result-path-disp"></div>
+    <div class="result-cost-disp" id="result-cost-disp"></div>
+    <div class="result-sub" id="result-sub"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="stat-card"><div class="lbl">Nodes Explored</div><div class="val" id="f-nodes">0</div></div>
+  <div class="stat-card red"><div class="lbl">Recursive Calls</div><div class="val" id="f-calls">0</div></div>
+  <div class="stat-card gold"><div class="lbl">Best Cost</div><div class="val" id="f-best">∞</div></div>
+  <div class="stat-card"><div class="lbl">Current Cost</div><div class="val" id="f-cur">0</div></div>
+  <div class="stat-card grn"><div class="lbl">Tours Checked</div><div class="val" id="f-tours">0</div></div>
+  <div class="stat-card"><div class="lbl">Steps</div><div class="val" id="f-steps">0</div></div>
+  <div class="stat-card purp"><div class="lbl">Exec Time</div><div class="val" id="f-time">0ms</div></div>
+  <div class="stat-card"><div class="lbl">Time Complexity</div><div class="val" style="font-size:12px" id="f-tc">O((n-1)!)</div></div>
+  <div class="stat-card"><div class="lbl">Space Complexity</div><div class="val" style="font-size:12px" id="f-sc">O(n)</div></div>
+  <div class="path-card"><div class="lbl">Best Path</div><div class="val" id="f-path">—</div></div>
+  <div class="mini-chart-card"><canvas id="mini-canvas"></canvas></div>
+</footer>
+
+<div class="result-overlay" id="result-overlay">
+  <div class="result-modal">
+    <div class="modal-title">◈ OPTIMAL SOLUTION FOUND</div>
+    <div class="modal-subtitle" id="m-algo"></div>
+    <div class="modal-path" id="m-path"></div>
+    <div class="modal-cost" id="m-cost"></div>
+    <div class="modal-stats" id="m-stats"></div>
+    <button class="modal-close" onclick="closeResult()">CONTINUE →</button>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
